@@ -3,20 +3,23 @@ import os
 import wordcloud
 import jieba
 import random
+from flask import Blueprint, request
+import json
+
+bp = Blueprint('wordcloud', __name__, url_prefix='/api')
 
 class Cloud:
     def __init__(self) -> None:
         abs = os.path.abspath(__file__)
         self.ROOT = os.path.dirname(abs)
-        self.IMGROOT = "/Users/fcc/Desktop/Files/vs/flask/data"
-        # ///
+        self.IMGROOT = os.path.join(self.ROOT, '../data')
 
     def path(self, file_name):
         return os.path.join(self.ROOT, file_name)
 
     def get_config(self, key, type=str):
         configs = configparser.ConfigParser()
-        configs.read(self.path("config.ini"))
+        configs.read(self.path("../assets/wordcloudConfig.ini"))
         return type(configs["programme"][key])
 
     def getRandom(self):
@@ -32,7 +35,7 @@ class Cloud:
         txtlist = jieba.lcut(txt)
         words = " ".join(txtlist)
         stopwords = set()
-        content = [line.strip() for line in open(self.path("stop_words.txt"), 'r', encoding="utf-8").readlines()]
+        content = [line.strip() for line in open(self.path("../assets/stop_words.txt"), 'r', encoding="utf-8").readlines()]
         stopwords.update(content)
         w = wordcloud.WordCloud(background_color='white',
                                 font_path=self.path(self.get_config("font")), 
@@ -56,3 +59,22 @@ class Cloud:
 #         create_cloud(path(argv[1]), argv[2])
 #     else:
 #         print("缺少参数")
+
+@bp.route('/wordcloud', methods=["POST"])
+def wc():
+    res = {
+        "code": 0,
+        "msg": "",
+        "data": []
+    }
+    try:
+        c = Cloud()
+        p = c.create_cloud(request.get_json()["text"])
+        res["msg"] = p
+    except Exception as e:
+        res["code"] = 1
+        res["msg"] = str(e)
+    res_text = "api_response=" + json.dumps(res, ensure_ascii=False)
+    if request.args.get("type") == "json":
+        return res_text
+    return res

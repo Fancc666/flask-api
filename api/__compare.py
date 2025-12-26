@@ -10,8 +10,8 @@ import time
 import asyncio
 import base64
 from urllib import parse
-import mailer
-from bili import BiliDataGeter
+import mailRequire
+from biliRequire import BiliDataGeter
 from ttsPlugin import myTTS
 
 # sys.path.append("/Users/fcc/Desktop/Files/vs/pysqlite/bilidata-fans")
@@ -20,7 +20,7 @@ from ttsPlugin import myTTS
 # sys.path.append("/root/FANCC/pymail")
 
 # from db import *
-from cloudrequire import Cloud
+from cloudRequire import Cloud
 # from maildb import MyMailDatabase
 # from mailer import Mail
 
@@ -102,7 +102,7 @@ def mail_api():
             res["msg"] = "token invalid"
         else:
             # send mail
-            m = mailer.mail()
+            m = mailRequire.mail()
             m.message(tw, sub, ct)
             m.send()
     except Exception as e:
