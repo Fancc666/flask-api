@@ -10,9 +10,9 @@ import time
 import asyncio
 import base64
 from urllib import parse
-import mailRequire
-from biliRequire import BiliDataGeter
-from ttsPlugin import myTTS
+from api import mailRequire
+from api.biliRequire import BiliDataGeter
+from api.ttsPlugin import myTTS
 
 # sys.path.append("/Users/fcc/Desktop/Files/vs/pysqlite/bilidata-fans")
 # sys.path.append("/root/FANCC/pys")
@@ -20,10 +20,10 @@ from ttsPlugin import myTTS
 # sys.path.append("/root/FANCC/pymail")
 
 # from db import *
-from cloudrequire import Cloud
+# from api.cloudRequire import Cloud
 # from maildb import MyMailDatabase
 # from mailer import Mail
-from lzRequire import lzDown
+from api.lzRequire import lzDown
 # def after_request(resp):
 #     resp.headers['Access-Control-Allow-Origin'] = "*" # need to change!
 #     resp.headers['Access-Control-Allow-Headers'] = "*"
@@ -74,24 +74,24 @@ def index():
         return res_text
     return res
 
-@app.route("/api/wordcloud", methods=["POST"])
-def wc():
-    res = {
-        "code": 0,
-        "msg": "",
-        "data": []
-    }
-    try:
-        c = Cloud()
-        p = c.create_cloud(request.get_json()["text"])
-        res["msg"] = p
-    except Exception as e:
-        res["code"] = 1
-        res["msg"] = str(e)
-    res_text = "api_response=" + json.dumps(res, ensure_ascii=False)
-    if request.args.get("type") == "json":
-        return res_text
-    return res
+# @app.route("/api/wordcloud", methods=["POST"])
+# def wc():
+#     res = {
+#         "code": 0,
+#         "msg": "",
+#         "data": []
+#     }
+#     try:
+#         c = Cloud()
+#         p = c.create_cloud(request.get_json()["text"])
+#         res["msg"] = p
+#     except Exception as e:
+#         res["code"] = 1
+#         res["msg"] = str(e)
+#     res_text = "api_response=" + json.dumps(res, ensure_ascii=False)
+#     if request.args.get("type") == "json":
+#         return res_text
+#     return res
 
 @app.route("/api/mail", methods=["POST"])
 def mail_api():
