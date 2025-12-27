@@ -2,6 +2,11 @@ import smtplib
 from email.mime.multipart import MIMEMultipart 
 from email.mime.text import MIMEText
 from email.header import Header
+from flask import Blueprint, request
+import base64
+import json
+
+bp = Blueprint('mail', __name__, url_prefix='/api')
 
 class mail:
     def __init__(self) -> None:
@@ -26,3 +31,35 @@ class mail:
     def send(self):
         self.connect.sendmail('verify565455@163.com', self.to_whom, self.msg.as_string()) 
         self.connect.quit()
+
+@bp.route('/mail', methods=["POST"])
+def mail_api():
+    res = {
+        "code": 0,
+        "msg": "",
+        "data": []
+    }
+    try:
+        # token
+        tw = request.get_json()["to_whom"]
+        sub = request.get_json()["subject"]
+        ct = request.get_json()["content"]
+        tk = tw + "+" + sub + "+" + ct
+        tk_num = 0
+        for x in tk:
+            tk_num += ord(x)
+        if base64.b64encode(str(tk_num).encode('utf-8')).decode('utf-8') != request.get_json()["token"]:
+            res["code"] = 1
+            res["msg"] = "token invalid"
+        else:
+            # send mail
+            m = mail()
+            m.message(tw, sub, ct)
+            m.send()
+    except Exception as e:
+        res["code"] = 1
+        res["msg"] = str(e)
+    res_text = "api_response=" + json.dumps(res, ensure_ascii=False)
+    if request.args.get("type") == "json":
+        return res_text
+    return res

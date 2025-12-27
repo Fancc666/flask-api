@@ -2,6 +2,18 @@ import asyncio
 import edge_tts
 import hashlib
 import os
+import json
+from flask import Blueprint, request
+
+bp = Blueprint('tts', __name__, url_prefix='/api')
+
+def responser(code, data):
+    if type(data) != dict:
+        data = {"msg": data}
+    return json.dumps({
+        "code": code,
+        "data": data
+    }, ensure_ascii=False)
 
 class myTTS:
     def __init__(self, text):
@@ -26,7 +38,14 @@ class myTTS:
                     file.write(chunk["data"])
         return output_file, file_name
 
-if __name__ == '__main__':
-    text = "你好"
+@bp.route('/tts')
+def tts():
+    text = request.args.get("text")
+    # rtype = request.args.get("type")
+    if text == None or text == "":
+        return responser(1, "para 'text' is required")
     tts = myTTS(text)
-    print(asyncio.run(tts.write_file('./data/')))
+    fpath, fname = asyncio.run(tts.write_file(os.environ.get('TTS_PATH')))
+    # /www/wwwroot/dev.565455.xyz/tel/voice
+    # print(fpath)
+    return responser(0, {'filepath': fname})

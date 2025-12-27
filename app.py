@@ -1,5 +1,9 @@
 from flask import Flask, request
 from api import register_all
+from dotenv import load_dotenv
+from pathlib import Path
+
+load_dotenv(Path(__file__).parent.parent / '.env')
 
 app = Flask(__name__)
 @app.after_request
