@@ -1,7 +1,9 @@
 import requests
 import json
-from bilibili_api import homepage, search, sync
-from flask import Blueprint, request
+from bilibili_api import homepage, search, sync, video, settings
+from flask import Blueprint, request, jsonify
+
+settings.http_client = settings.HTTPClient.HTTPX
 
 bp = Blueprint('bilibili', __name__, url_prefix='/api/bili')
 
@@ -51,3 +53,16 @@ def bili_search():
         return responser(0, res)
     except Exception as e:
         return responser(1, str(e))
+
+@bp.route("/download", methods=["GET"])
+def bili_download():
+    bv_num = request.args.get('bv')
+    p_num = request.args.get('p')
+    if bv_num == None or p_num == None:
+        return jsonify(code=1, msg="parameters lost", v_link="")
+    try:
+        myvideo = video.Video(bvid=bv_num)
+        url = sync(myvideo.get_download_url(int(p_num) - 1, html5=True))
+        return jsonify(code=0, msg="ok", v_link=url["durl"][0]["url"])
+    except Exception as e:
+        return jsonify(code=1, msg=str(e), v_link="")
