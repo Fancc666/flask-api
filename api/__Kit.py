@@ -1,5 +1,9 @@
 from flask import jsonify
 import requests
+from dotenv import load_dotenv
+from pathlib import Path
+
+load_dotenv(Path(__file__).parent.parent / '.env')
 
 def myResponse(code=0, msg='ok', data=None):
     return jsonify(

@@ -1,3 +1,5 @@
+# 单文件旧版本api文件已经弃用，仅作参考
+
 # 改动前务必先检查，先pull再push
 from flask import Flask, request, send_file
 from flask import abort

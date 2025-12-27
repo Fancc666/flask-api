@@ -3,3 +3,6 @@
 .DS_Store
 compare.py
 __pycache__
+.env
+/test/*
+/test
