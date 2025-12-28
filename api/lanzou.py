@@ -3,7 +3,7 @@ import re
 import json
 from urllib.parse import urlencode
 import urllib3
-from __lanzouKit import LanZou
+from api.__lanzouKit import LanZou
 from flask import Blueprint, jsonify, request
 
 bp = Blueprint('lanzou', __name__, url_prefix='/api')
