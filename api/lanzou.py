@@ -68,7 +68,7 @@ class lzDown:
             self.reply["link"] = rfile_head
         except Exception as e:
             self.err(str(e))
-        return self.reply
+        return self.reply["link"]
 
     def analyze(self, text):
         reg = r"var (.+) = '(.*)';"
@@ -97,7 +97,7 @@ class lzDown:
         req.encoding = "utf-8"
         return req.text
     def get_head(self, url):
-        req = requests.get(url, verify=False, headers=self.headers)
+        req = requests.get(url, verify=False, headers=self.headers, cookies=self.cookie)
         req.encoding = "utf-8"
         return req.url
     def err(self, msg):
