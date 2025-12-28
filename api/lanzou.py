@@ -1,8 +1,12 @@
 import requests
 import re
 import json
-from urllib.parse import unquote, urlencode
+from urllib.parse import urlencode
 import urllib3
+from __lanzouKit import LanZou
+from flask import Blueprint, jsonify, request
+
+bp = Blueprint('lanzou', __name__, url_prefix='/api')
 
 class lzDown:
     def __init__(self):
@@ -27,12 +31,20 @@ class lzDown:
             'msg': "",
             'link': ""
         }
+        self.cookie = {
+            "acw_sc__v2": ""
+        }
     def get_result(self, lzlink):
         try:
+            # 0. get Cookie
+            mylz = LanZou()
             # 1.用户链
             user_page_url = lzlink
             user_page_text = self.get_html(user_page_url)
+            acw = mylz.extract_cookie(user_page_text)
+            self.cookie["acw_sc__v2"] = acw
 
+            user_page_text = self.get_html(user_page_url)
             # 2.button-page
             button_page_url = re.findall(r"[^-]<iframe (?:.*?) src=\"(.*?)\" (?:.*?)></iframe>", user_page_text)[0]
             button_page_url = "https://lanzout.com" + button_page_url
@@ -81,7 +93,7 @@ class lzDown:
         }
         return result
     def get_html(self, url):
-        req = requests.get(url, verify=False, headers=self.headers)
+        req = requests.get(url, verify=False, headers=self.headers, cookies=self.cookie)
         req.encoding = "utf-8"
         return req.text
     def get_head(self, url):
@@ -96,3 +108,15 @@ class lzDown:
 #     my_lz = lzDown()
 #     res = my_lz.get_result("https://fancc.lanzout.com/ixZ5k34ukgnc")
 #     print(res)
+
+@bp.route('/lznew')
+def lznew():
+    lz_lnk = request.args.get('lz')
+    if lz_lnk == None:
+        return jsonify(code=1, msg="参数错误", link="")
+    try:
+        my_lz = lzDown()
+        res = my_lz.get_result(lz_lnk)
+        return jsonify(code=0, msg="ok", link=res)
+    except Exception as e:
+        return jsonify(code=1, msg=str(e), link="")

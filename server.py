@@ -25,7 +25,7 @@ from api.tts import myTTS
 # from api.cloudRequire import Cloud
 # from maildb import MyMailDatabase
 # from mailer import Mail
-from api.lzRequire import lzDown
+from api.lanzou import lzDown
 # def after_request(resp):
 #     resp.headers['Access-Control-Allow-Origin'] = "*" # need to change!
 #     resp.headers['Access-Control-Allow-Headers'] = "*"
