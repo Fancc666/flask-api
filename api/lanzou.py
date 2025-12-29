@@ -64,8 +64,9 @@ class lzDown:
             file_url = f"{information['dom']}/file/{information['url']}"
 
             # 5.重定向
+            # print(self.get_head(file_url)['Location'])
             rfile_head = self.get_head(file_url)
-            self.reply["link"] = rfile_head
+            self.reply["link"] = rfile_head['Location']
         except Exception as e:
             self.err(str(e))
         return self.reply["link"]
@@ -97,12 +98,13 @@ class lzDown:
         req.encoding = "utf-8"
         return req.text
     def get_head(self, url):
-        req = requests.get(url, verify=False, headers=self.headers, cookies=self.cookie)
-        req.encoding = "utf-8"
-        return req.url
+        req = requests.head(url, verify=False, headers=self.headers, cookies=self.cookie)
+        return req.headers
     def err(self, msg):
         self.reply['code'] = 1
         self.reply['msg'] = msg
+    def get_token(self):
+        return self.cookie["acw_sc__v2"]
 
 # if __name__ == "__main__":
 #     my_lz = lzDown()
@@ -117,6 +119,6 @@ def lznew():
     try:
         my_lz = lzDown()
         res = my_lz.get_result(lz_lnk)
-        return jsonify(code=0, msg="ok", link=res)
+        return jsonify(code=0, msg="ok", link=res, token=my_lz.get_token())
     except Exception as e:
         return jsonify(code=1, msg=str(e), link="")
