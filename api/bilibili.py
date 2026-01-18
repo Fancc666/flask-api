@@ -2,10 +2,12 @@ import requests
 import json
 from bilibili_api import homepage, search, sync, video, settings
 from flask import Blueprint, request, jsonify
+from typing import cast, Any, Dict
 
 settings.http_client = settings.HTTPClient.HTTPX
 
 bp = Blueprint('bilibili', __name__, url_prefix='/api/bili')
+# 参考https://nemo2011.github.io/bilibili-api/#/
 
 class BiliDataGeter:
     def __init__(self) -> None:
@@ -17,7 +19,7 @@ class BiliDataGeter:
         response.encoding = "utf-8"
         return response.text
     def get_shouye(self):
-        data = sync(homepage.get_videos())
+        data = cast(Dict[str, Any], sync(homepage.get_videos()))
         return data["item"]
     def get_search(self, keyword):
         data = sync(search.search(keyword))
@@ -66,3 +68,15 @@ def bili_download():
         return jsonify(code=0, msg="ok", v_link=url["durl"][0]["url"])
     except Exception as e:
         return jsonify(code=1, msg=str(e), v_link="")
+
+@bp.route("/info", methods=["GET"])
+def bili_info():
+    bv_num = request.args.get('bv')
+    if bv_num == None:
+        return jsonify(code=1, msg="parameters lost", data={})
+    try:
+        myvideo = video.Video(bvid=bv_num)
+        myvideo_info = sync(myvideo.get_info())
+        return jsonify(code=0, msg="ok", data=myvideo_info)
+    except Exception as e:
+        return jsonify(code=1, msg=str(e), data={})

@@ -34,18 +34,19 @@ class myTTS:
         communicate = edge_tts.Communicate(self.text, self.voice)
         with open(output_file, "wb") as file:
             async for chunk in communicate.stream():
-                if chunk["type"] == "audio":
+                if chunk["type"] == "audio" and "data" in chunk:
                     file.write(chunk["data"])
         return output_file, file_name
 
 @bp.route('/tts')
 def tts():
     text = request.args.get("text")
-    # rtype = request.args.get("type")
+    stype = request.args.get("type") or "http"
     if text == None or text == "":
         return responser(1, "para 'text' is required")
     tts = myTTS(text)
-    fpath, fname = asyncio.run(tts.write_file(os.environ.get('TTS_PATH')))
+    final_path = os.environ.get('TTS_PATH') if stype != "https" else os.environ.get('TTS_PATH_HTTPS')
+    fpath, fname = asyncio.run(tts.write_file(final_path))
     # /www/wwwroot/dev.565455.xyz/tel/voice
     # print(fpath)
     return responser(0, {'filepath': fname})
