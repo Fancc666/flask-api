@@ -33,7 +33,10 @@ class LanZou:
 
     def extract_cookie(self, script_html: str) -> str:
         # 抠 <script> 里的纯 JS（这部分不改）
-        inner_js = re.search(r'<script>(.*?)</script>', script_html, flags=re.S)[1]
+        match = re.search(r'<script>(.*?)</script>', script_html, flags=re.S)
+        if not match:
+            raise ValueError('未找到 <script> 标签')
+        inner_js = match[1]
 
         ctx = quickjs.Context()
         # 先下钩子

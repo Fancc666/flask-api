@@ -11,7 +11,9 @@ bp = Blueprint('wordcloud', __name__, url_prefix='/api')
 
 class Cloud:
     def __init__(self) -> None:
-        self.IMGROOT = str(Path(os.environ.get('WC_PATH')))
+        val = os.environ.get("WC_PATH")
+        assert val is not None
+        self.IMGROOT = str(Path(val))
 
     def path(self, file_name):
         return str(Path(__file__).parent.parent / file_name)
@@ -36,11 +38,14 @@ class Cloud:
         stopwords = set()
         content = [line.strip() for line in open(self.path("assets/stop_words.txt"), 'r', encoding="utf-8").readlines()]
         stopwords.update(content)
+        iw = self.get_config("image_width")
+        ih = self.get_config("image_height")
+        assert iw is not None and ih is not None
         w = wordcloud.WordCloud(background_color='white',
                                 font_path=self.path("assets/" + self.get_config("font")), 
                                 stopwords=stopwords, 
-                                width=self.get_config("image_width", int), 
-                                height=self.get_config("image_height", int),
+                                width=int(iw), 
+                                height=int(ih),
                                 mode="RGBA")
         w.generate(words)
         w.to_file(Path(self.IMGROOT) / out)
